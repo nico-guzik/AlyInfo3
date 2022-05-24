@@ -15,21 +15,25 @@ namespace Citynames
     public partial class Form1 : Form
     {
         MySqlConnection DatenbankVerbindung = new MySqlConnection();
+        List<City> cities = new List<City>();
 
-        /*struct City
+        struct City
         {
-            public City(int id, string name, string country, int einwohner)
+            public City(string name, string country, string einwohner)
             {
-                Id = id;
                 Name = name;
                 Country = country;
                 Einwohner = einwohner;
             }
-            public int Id { get;}
             public string Name { get; }
             public string Country { get; }
-            public int Einwohner { get; }
-        }*/
+            public string Einwohner { get; }
+
+            public override string ToString()
+            {
+                return Name;
+            }
+        }
 
         public Form1()
         {  // Konstruktor
@@ -41,9 +45,23 @@ namespace Citynames
                 + "initial catalog=Terra; uid=terrauser; pwd=testen";
             DatenbankVerbindung.Open();
             // Aufbau und Absenden einer SELECT-Abfrage
-            string allCitiesStatement = "SELECT ST_NAME FROM STADT ORDER BY ST_NAME";
+            //string allCitiesStatement = "SELECT ST_NAME FROM STADT ORDER BY ST_NAME";
+            //MySqlDataReader reader = ExecuteSQLCommand(allCitiesStatement);
+            //FillListBox(CitiesListbox, reader);
+            ReadData();
+        }
+
+        void ReadData()
+        {
+            string allCitiesStatement = "SELECT ST_NAME, L_ID, EINWOHNER FROM STADT ORDER BY ST_NAME";
             MySqlDataReader reader = ExecuteSQLCommand(allCitiesStatement);
-            FillListBox(CitiesListbox, reader);
+            while (reader.Read())
+            {
+                City city = new City(reader["ST_Name"].ToString(), reader["L_ID"].ToString(), reader["EINWOHNER"].ToString());
+                cities.Add(city);
+                CitiesListbox.Items.Add(city);
+            }
+            reader.Close();
         }
 
         void OnCitySelect(object sender, EventArgs e)
@@ -109,11 +127,6 @@ namespace Citynames
                 box.Items.Add(reader[0].ToString());
             }
             reader.Close();
-        }
-
-        void GetAllCitiesIn(string country)
-        {
-
         }
 
     }
